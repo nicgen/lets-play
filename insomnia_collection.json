@@ -1,0 +1,929 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2025-10-15T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v2023.5.0",
+  "resources": [
+    {
+      "_id": "wrk_letsplay",
+      "_type": "workspace",
+      "name": "Let's Play API",
+      "description": "Spring Boot CRUD API with JWT Authentication for User and Product Management",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:8080",
+        "auth_token": "",
+        "user_id": "",
+        "product_id": "",
+        "admin_token": ""
+      },
+      "dataPropertyOrder": {
+        "&": [
+          "base_url",
+          "auth_token",
+          "user_id",
+          "product_id",
+          "admin_token"
+        ]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1,
+      "parentId": "wrk_letsplay"
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "name": "01 - Authentication",
+      "description": "User registration and login endpoints. No authentication required.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -1000,
+      "parentId": "wrk_letsplay"
+    },
+    {
+      "_id": "req_register_user",
+      "_type": "request",
+      "name": "Register User",
+      "description": "Register a new user account. Creates a regular user with ROLE_USER by default. Returns JWT token and user details.",
+      "url": "{{ _.base_url }}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Test1234!\",\n  \"role\": \"ROLE_USER\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_register_admin",
+      "_type": "request",
+      "name": "Register Admin",
+      "description": "Register a new admin account with ROLE_ADMIN. Admins have full access to all resources.",
+      "url": "{{ _.base_url }}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin1234!\",\n  \"role\": \"ROLE_ADMIN\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -90,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_user",
+      "_type": "request",
+      "name": "Login User",
+      "description": "Login with user credentials. Returns JWT token valid for 15 minutes. Rate limited to 5 requests per minute per IP.\n\nThe after-response script automatically extracts the token and sets it as 'auth_token' environment variable.",
+      "url": "{{ _.base_url }}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"Test1234!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -80,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "// Extract JWT token from response and set as environment variable\nif (insomnia.response.code === 200) {\n  const jsonBody = insomnia.response.json();\n  if (jsonBody.token) {\n    insomnia.environment.set(\"auth_token\", jsonBody.token);\n    console.log(\"auth_token environment variable updated successfully\");\n  }\n}",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "req_login_admin",
+      "_type": "request",
+      "name": "Login Admin",
+      "description": "Login with admin credentials. Returns JWT token with admin privileges.\n\nThe after-response script automatically extracts the token and sets it as 'admin_token' environment variable.",
+      "url": "{{ _.base_url }}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"Admin1234!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -70,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "afterResponseScript": "// Extract JWT token from response and set as environment variable\nif (insomnia.response.code === 200) {\n  const jsonBody = insomnia.response.json();\n  if (jsonBody.token) {\n    insomnia.environment.set(\"admin_token\", jsonBody.token);\n    console.log(\"admin_token environment variable updated successfully\");\n  }\n}",
+      "parentId": "fld_auth"
+    },
+    {
+      "_id": "fld_users",
+      "_type": "request_group",
+      "name": "02 - Users",
+      "description": "User management endpoints. All endpoints require JWT authentication.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -900,
+      "parentId": "wrk_letsplay"
+    },
+    {
+      "_id": "req_get_all_users",
+      "_type": "request",
+      "name": "Get All Users (Admin Only)",
+      "description": "Retrieve list of all users. Requires ROLE_ADMIN.\n\nAuthorization: ADMIN only",
+      "url": "{{ _.base_url }}/api/users",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_get_current_user",
+      "_type": "request",
+      "name": "Get Current User",
+      "description": "Get details of the currently authenticated user.\n\nAuthorization: Any authenticated user",
+      "url": "{{ _.base_url }}/api/users/me",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -90,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_get_user_by_id",
+      "_type": "request",
+      "name": "Get User By ID",
+      "description": "Get details of a specific user by ID.\n\nAuthorization: Any authenticated user can view any user profile",
+      "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -80,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_update_own_user",
+      "_type": "request",
+      "name": "Update Own Profile",
+      "description": "Update current user's profile information.\n\nAuthorization: Users can update their own profile",
+      "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Updated Test User\",\n  \"email\": \"updated.test@example.com\",\n  \"password\": \"NewPass1234!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -70,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_update_user_admin",
+      "_type": "request",
+      "name": "Update User (Admin)",
+      "description": "Admin can update any user's profile.\n\nAuthorization: ADMIN can update any user",
+      "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Admin Updated User\",\n  \"email\": \"admin.updated@example.com\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "metaSortKey": -60,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_delete_own_user",
+      "_type": "request",
+      "name": "Delete Own Account",
+      "description": "Delete current user's account.\n\nAuthorization: Users can delete their own account",
+      "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -50,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "req_delete_user_admin",
+      "_type": "request",
+      "name": "Delete User (Admin)",
+      "description": "Admin can delete any user account.\n\nAuthorization: ADMIN can delete any user",
+      "url": "{{ _.base_url }}/api/users/{{ _.user_id }}",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "metaSortKey": -40,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_users"
+    },
+    {
+      "_id": "fld_products",
+      "_type": "request_group",
+      "name": "03 - Products",
+      "description": "Product management endpoints. GET /products and GET /products/{id} are PUBLIC. Other operations require authentication.",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -800,
+      "parentId": "wrk_letsplay"
+    },
+    {
+      "_id": "req_get_all_products",
+      "_type": "request",
+      "name": "Get All Products (Public)",
+      "description": "Retrieve list of all products. PUBLIC endpoint - no authentication required.",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_get_product_by_id",
+      "_type": "request",
+      "name": "Get Product By ID (Public)",
+      "description": "Get details of a specific product by ID. PUBLIC endpoint - no authentication required.",
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -90,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_get_products_by_user",
+      "_type": "request",
+      "name": "Get Products By User ID",
+      "description": "Get all products created by a specific user.\n\nAuthorization: Any authenticated user",
+      "url": "{{ _.base_url }}/api/products/user/{{ _.user_id }}",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -80,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_create_product_laptop",
+      "_type": "request",
+      "name": "Create Product - Laptop",
+      "description": "Create a new product. The userId is automatically set to the authenticated user.\n\nAuthorization: Any authenticated user can create products",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Gaming Laptop\",\n  \"description\": \"High-performance gaming laptop with RTX 4080, 32GB RAM, and 1TB SSD. Perfect for gaming and content creation.\",\n  \"price\": 1899.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -70,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_create_product_phone",
+      "_type": "request",
+      "name": "Create Product - Phone",
+      "description": "Create a smartphone product.",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Smartphone Pro Max\",\n  \"description\": \"Latest flagship smartphone with 6.7-inch OLED display, 5G connectivity, and advanced camera system.\",\n  \"price\": 999.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -65,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_create_product_headphones",
+      "_type": "request",
+      "name": "Create Product - Headphones",
+      "description": "Create wireless headphones product.",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Wireless Noise-Canceling Headphones\",\n  \"description\": \"Premium over-ear headphones with active noise cancellation, 30-hour battery life, and exceptional sound quality.\",\n  \"price\": 349.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -62,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_create_product_tablet",
+      "_type": "request",
+      "name": "Create Product - Tablet",
+      "description": "Create tablet product.",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Professional Tablet\",\n  \"description\": \"12.9-inch tablet with stylus support, perfect for digital artists and professionals on the go.\",\n  \"price\": 799.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -60,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_create_product_watch",
+      "_type": "request",
+      "name": "Create Product - Smart Watch",
+      "description": "Create smartwatch product.",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Fitness Smart Watch\",\n  \"description\": \"Advanced fitness tracker with heart rate monitoring, GPS, sleep tracking, and 7-day battery life.\",\n  \"price\": 249.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -58,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_update_product_owner",
+      "_type": "request",
+      "name": "Update Product (Owner)",
+      "description": "Update an existing product. Users can only update their own products.\n\nAuthorization: Product owner or ADMIN",
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Updated Gaming Laptop\",\n  \"description\": \"UPDATED: High-performance gaming laptop with RTX 4090, 64GB RAM, and 2TB SSD.\",\n  \"price\": 2499.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -50,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_update_product_admin",
+      "_type": "request",
+      "name": "Update Product (Admin)",
+      "description": "Admin can update any product regardless of ownership.\n\nAuthorization: ADMIN can update any product",
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Admin Modified Product\",\n  \"description\": \"This product was modified by an administrator.\",\n  \"price\": 1999.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "metaSortKey": -40,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_delete_product_owner",
+      "_type": "request",
+      "name": "Delete Product (Owner)",
+      "description": "Delete a product. Users can only delete their own products.\n\nAuthorization: Product owner or ADMIN",
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -30,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "req_delete_product_admin",
+      "_type": "request",
+      "name": "Delete Product (Admin)",
+      "description": "Admin can delete any product regardless of ownership.\n\nAuthorization: ADMIN can delete any product",
+      "url": "{{ _.base_url }}/api/products/{{ _.product_id }}",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.admin_token }}"
+      },
+      "metaSortKey": -20,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_products"
+    },
+    {
+      "_id": "fld_test_scenarios",
+      "_type": "request_group",
+      "name": "04 - Test Scenarios",
+      "description": "Common test scenarios for validation and error handling",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": -700,
+      "parentId": "wrk_letsplay"
+    },
+    {
+      "_id": "req_test_invalid_login",
+      "_type": "request",
+      "name": "Test Invalid Login",
+      "description": "Test login with invalid credentials. Should return 401 Unauthorized.",
+      "url": "{{ _.base_url }}/api/auth/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"WrongPassword123!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -100,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_weak_password",
+      "_type": "request",
+      "name": "Test Weak Password Registration",
+      "description": "Test registration with weak password. Should return 400 Bad Request with validation error.",
+      "url": "{{ _.base_url }}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Test User\",\n  \"email\": \"weak@example.com\",\n  \"password\": \"weak\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -90,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_invalid_email",
+      "_type": "request",
+      "name": "Test Invalid Email Format",
+      "description": "Test registration with invalid email format. Should return 400 Bad Request.",
+      "url": "{{ _.base_url }}/api/auth/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Test User\",\n  \"email\": \"not-an-email\",\n  \"password\": \"Password123!\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": -80,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_unauthorized_access",
+      "_type": "request",
+      "name": "Test Unauthorized Access",
+      "description": "Test accessing protected endpoint without token. Should return 401 Unauthorized.",
+      "url": "{{ _.base_url }}/api/users/me",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -70,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_invalid_token",
+      "_type": "request",
+      "name": "Test Invalid Token",
+      "description": "Test accessing protected endpoint with invalid token. Should return 401 Unauthorized.",
+      "url": "{{ _.base_url }}/api/users/me",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "invalid.jwt.token"
+      },
+      "metaSortKey": -60,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_user_access_admin",
+      "_type": "request",
+      "name": "Test User Access Admin Endpoint",
+      "description": "Test regular user accessing admin-only endpoint. Should return 403 Forbidden.",
+      "url": "{{ _.base_url }}/api/users",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -50,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_negative_price",
+      "_type": "request",
+      "name": "Test Negative Product Price",
+      "description": "Test creating product with negative price. Should return 400 Bad Request.",
+      "url": "{{ _.base_url }}/api/products",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Invalid Product\",\n  \"description\": \"This product has an invalid price\",\n  \"price\": -99.99\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {
+        "type": "bearer",
+        "token": "{{ _.auth_token }}"
+      },
+      "metaSortKey": -40,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    },
+    {
+      "_id": "req_test_nonexistent_resource",
+      "_type": "request",
+      "name": "Test Non-Existent Resource",
+      "description": "Test accessing non-existent product. Should return 404 Not Found.",
+      "url": "{{ _.base_url }}/api/products/000000000000000000000000",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": -30,
+      "isPrivate": false,
+      "settingStoreCookies": true,
+      "settingSendCookies": true,
+      "settingDisableRenderRequestBody": false,
+      "settingEncodeUrl": true,
+      "settingRebuildPath": true,
+      "settingFollowRedirects": "global",
+      "parentId": "fld_test_scenarios"
+    }
+  ]
+}

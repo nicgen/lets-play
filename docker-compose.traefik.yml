@@ -1,0 +1,44 @@
+# Docker Compose override for Traefik integration
+#
+# Usage:
+#   docker compose -f docker-compose.yml -f docker-compose.traefik.yml up -d
+#
+# Prerequisites:
+#   - Traefik instance running with Let's Encrypt configured
+#   - External Docker network 'traefik_net' created: docker network create traefik_net
+#   - DOMAIN_API set in .env file
+#
+# For Traefik setup, see: https://github.com/nicgen/Traefik-Reverse-Proxy
+
+services:
+  api:
+    networks:
+      - traefik_net
+    labels:
+      # Enable Traefik for this service
+      - "traefik.enable=true"
+
+      # Docker network to use
+      - "traefik.docker.network=traefik_net"
+
+      # HTTP Router (redirect to HTTPS)
+      - "traefik.http.routers.letsplay-http.rule=Host(`${DOMAIN_API}`)"
+      - "traefik.http.routers.letsplay-http.entrypoints=web"
+      - "traefik.http.routers.letsplay-http.middlewares=redirect-to-https"
+
+      # HTTPS Router
+      - "traefik.http.routers.letsplay-https.rule=Host(`${DOMAIN_API}`)"
+      - "traefik.http.routers.letsplay-https.entrypoints=websecure"
+      - "traefik.http.routers.letsplay-https.tls=true"
+      - "traefik.http.routers.letsplay-https.tls.certresolver=cloudflare"
+
+      # Service configuration (port Spring Boot listens on)
+      - "traefik.http.services.letsplay.loadbalancer.server.port=8080"
+
+      # Middleware for HTTP to HTTPS redirect
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.permanent=true"
+
+networks:
+  traefik_net:
+    external: true
