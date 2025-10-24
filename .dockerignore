@@ -1,0 +1,59 @@
+# Ignore files and directories that shouldn't be copied into Docker images
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Maven
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.eclipse
+.settings/
+.classpath
+.project
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+logs/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+!README.md
+references/
+
+# Test results
+test-results.log
+
+# Backup files
+backups/
+*.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Insomnia
+insomnia_collection.json
+
+# Other
+*.swp
+*.swo
+*~
